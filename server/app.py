@@ -22,13 +22,20 @@ def clear_session():
 
 @app.route('/articles')
 def index_articles():
-
-    pass
+    articles = [each.to_dict() for each in Article.query.all()]
+    return make_response(articles, 200)
 
 @app.route('/articles/<int:id>')
 def show_article(id):
 
-    pass
+    session['page_views'] = session.get('page_views') or 0
+    session['page_views'] += 1
+
+    if session['page_views'] < 4:
+        article = Article.query.filter_by(id=id).first().to_dict()
+        return article, 200
+    else:
+        return make_response({'message': 'Maximum pageview limit reached'}, 401)
 
 if __name__ == '__main__':
-    app.run(port=5555)
+    app.run(port=5555, debug=True)
